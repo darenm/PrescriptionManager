@@ -72,4 +72,8 @@
     <NotInBuild Include="Connections.txt" />
     <NotInBuild Include="Create Scripts\CreateDatabaseTables.SQL" />
   </ItemGroup>
+  <ItemGroup>
+    <Build Include="Create Scripts\CreateContosoMedicalDB.sql" />
+    <Build Include="Create Scripts\Data.sql" />
+  </ItemGroup>
 </Project>
