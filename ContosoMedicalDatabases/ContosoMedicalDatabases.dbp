@@ -1,0 +1,19 @@
+# Microsoft Developer Studio Project File - Database Project
+Begin DataProject = "ContosoMedicalDatabases"
+   MSDTVersion = "80"
+   DefDBRef = "lon-dev\sqlexpress.ContosoMedicalDB.dbo"
+   Begin Folder = "Change Scripts"
+   End
+   Begin Folder = "Create Scripts"
+      Script = "CreateDatabaseTables.SQL"
+   End
+   Begin DBRefFolder = "Database References"
+      Begin DBRefNode = "lon-dev\sqlexpress.ContosoMedicalDB.dbo"
+         ConnectStr = "Data Source=.\SQLEXPRESS;Initial Catalog=ContosoMedicalDB;Integrated Security=True;Pooling=False"
+         Provider = "{91510608-8809-4020-8897-FBA057E22D54}"
+         Colorizer = 6
+      End
+   End
+   Begin Folder = "Queries"
+   End
+End
