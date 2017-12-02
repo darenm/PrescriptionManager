@@ -105,16 +105,16 @@ namespace PrescriptionManager
 
         #region View by Patient tab - modify data
 
-        private Prescription GetPrescriptionEntity(int prescriptionID)
-        {
-            // Define a LINQ query to get the specified Prescription entity.
-            var query = from p in _db.Prescriptions
-                        where p.PrescriptionID == prescriptionID
-                        select p;
+        //private Prescription GetPrescriptionEntity(int prescriptionID)
+        //{
+        //    // Define a LINQ query to get the specified Prescription entity.
+        //    var query = from p in _db.Prescriptions
+        //                where p.PrescriptionID == prescriptionID
+        //                select p;
 
-            // Return the Prescription entity.
-            return query.First();
-        }
+        //    // Return the Prescription entity.
+        //    return query.First();
+        //}
 
         private async void repeatPrescriptions_Click(object sender, EventArgs e)
         {
@@ -173,11 +173,13 @@ namespace PrescriptionManager
             int patientID = (int)patientsGridView.CurrentRow.Cells["PatientID"].Value;
 
             // Display a form to add new prescriptions.
-            NewPrescriptionsForm form = new NewPrescriptionsForm(patientID, _db);
+            //NewPrescriptionsForm form = new NewPrescriptionsForm(patientID, _db);
+            NewPrescriptionsForm form = new NewPrescriptionsForm(patientID, _client);
             form.ShowDialog();
 
             // Save the changes to the database.
             //DoSave();
+            DisplayPrescriptions();
         }
 
         //private void DoSave()
@@ -224,7 +226,7 @@ namespace PrescriptionManager
 
         #region View by Date tab - display data
 
-        private void go_Click(object sender, EventArgs e)
+        private async void go_Click(object sender, EventArgs e)
         {
             // Clear the prescriptionsInPeriodGridView.
             prescriptionsInPeriodGridView.Rows.Clear();
@@ -234,21 +236,34 @@ namespace PrescriptionManager
             DateTime toDate = toDatePicker.Value.Date;
 
             // Define a LINQ query to get Prescription entities in the date range.
-            var query = from p in _db.Prescriptions
-                        where p.IssueDate >= fromDate && p.IssueDate <= toDate 
-                        orderby p.IssueDate
-                        select p;
+            //var query = from p in _db.Prescriptions
+            //            where p.IssueDate >= fromDate && p.IssueDate <= toDate 
+            //            orderby p.IssueDate
+            //            select p;
 
-            // Display the Prescription entities.
-            foreach (Prescription p in query)
+            //// Display the Prescription entities.
+            //foreach (Prescription p in query)
+            //{
+            //    string patientName = p.Patient.FirstName + " " + p.Patient.LastName;
+            //    prescriptionsInPeriodGridView.Rows.Add(p.PrescriptionID,
+            //                                           p.IssueDate.ToShortDateString(),
+            //                                           patientName,
+            //                                           p.Description,
+            //                                           p.RepeatCount);
+            //}
+
+            var results = await _client.Get<List<Prescriptions>>("/api/Prescriptions",
+                new[] {(key: "fromDate", value: fromDate.ToString()), (key: "toDate", value: toDate.ToString())});
+            foreach (var p in results)
             {
                 string patientName = p.Patient.FirstName + " " + p.Patient.LastName;
-                prescriptionsInPeriodGridView.Rows.Add(p.PrescriptionID,
+                prescriptionsInPeriodGridView.Rows.Add(p.PrescriptionId,
                                                        p.IssueDate.ToShortDateString(),
                                                        patientName,
                                                        p.Description,
                                                        p.RepeatCount);
             }
+
         }
 
         #endregion

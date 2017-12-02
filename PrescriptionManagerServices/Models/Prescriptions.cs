@@ -10,5 +10,6 @@ namespace PrescriptionManagerServices.Models
         public string Description { get; set; }
         public DateTime IssueDate { get; set; }
         public int RepeatCount { get; set; }
+        public Patients Patient { get; set; }
     }
 }

@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using Newtonsoft.Json;
 
 namespace PrescriptionManagerServicesClient
@@ -45,11 +46,22 @@ namespace PrescriptionManagerServicesClient
             }
         }
 
-        public async Task<TModel> Get<TModel>(string relativePath) where TModel : class
+        public async Task<TModel> Get<TModel>(string relativePath, (string key, string value)[] parameters = null) where TModel : class
         {
             try
             {
-                var request = BuildGetRequest($"{_baseUri}/{relativePath}");
+                var uri = $"{_baseUri}/{relativePath}";
+                // get querystring object
+                var queryParameters = HttpUtility.ParseQueryString(string.Empty);
+                if (parameters != null)
+                {
+                    foreach (var parameter in parameters)
+                    {
+                        queryParameters[parameter.key] = parameter.value;
+                    }
+                    uri += $"?{queryParameters}";
+                }
+                var request = BuildGetRequest(uri);
                 var result = await GetStringResult(request);
                 var data = JsonConvert.DeserializeObject<TModel>(result);
                 return data;

@@ -23,8 +23,13 @@ namespace PrescriptionManagerServices.Controllers
 
         // GET: api/Prescriptions
         [HttpGet]
-        public IEnumerable<Prescriptions> GetPrescriptions()
+        public IEnumerable<Prescriptions> GetPrescriptions(DateTime? fromDate, DateTime? toDate)
         {
+            if (fromDate.HasValue && toDate.HasValue)
+            {
+                return _context.Prescriptions.Where(p => p.IssueDate >= fromDate.Value && p.IssueDate <= toDate.Value).Include(p => p.Patient);
+            }
+
             return _context.Prescriptions;
         }
 

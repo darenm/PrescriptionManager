@@ -6,6 +6,8 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using PrescriptionManagerServices.Models;
+using PrescriptionManagerServicesClient;
 
 namespace PrescriptionManager
 {
@@ -14,11 +16,14 @@ namespace PrescriptionManager
         // Patient ID for whom new prescriptions will be added.
         private int _patientID;
 
-        
-        // Typed DataContext object.
-        private ContosoMedicalDataClassesDataContext _db;
+        private ServiceHttpClient _client;
 
-        public NewPrescriptionsForm(int patientID, ContosoMedicalDataClassesDataContext db)
+
+        // Typed DataContext object.
+        //private ContosoMedicalDataClassesDataContext _db;
+
+        //public NewPrescriptionsForm(int patientID, ContosoMedicalDataClassesDataContext db)
+        public NewPrescriptionsForm(int patientID, ServiceHttpClient client)
         {
             InitializeComponent();
 
@@ -27,22 +32,32 @@ namespace PrescriptionManager
             Text = "New Prescriptions for PatientID " + patientID;
 
             // Store the typed DataContext object.
-            _db = db;
+            //_db = db;
+            _client = client;
         }
 
-        private void add_Click(object sender, EventArgs e)
+        private async void add_Click(object sender, EventArgs e)
         {
             // Create a Prescription entity.
-            Prescription prescription = new Prescription()
+            //Prescription prescription = new Prescription()
+            //{
+            //    PatientID = _patientID,
+            //    IssueDate = issueDatePicker.Value.Date,
+            //    Description = descriptionTextBox.Text,
+            //    RepeatCount = 0
+            //};
+
+            var prescription = new Prescriptions()
             {
-                PatientID = _patientID,
+                PatientId = _patientID,
                 IssueDate = issueDatePicker.Value.Date,
                 Description = descriptionTextBox.Text,
                 RepeatCount = 0
             };
 
             // Add the Prescription entity to the DataContext object.
-            _db.Prescriptions.InsertOnSubmit(prescription);
+            //_db.Prescriptions.InsertOnSubmit(prescription);
+            await _client.Post<Prescriptions>("/api/Prescriptions", prescription);
 
             // Add the prescription description to addedPrescriptionsListBox.
             addedPrescriptionsListBox.Items.Add(prescription.Description);
