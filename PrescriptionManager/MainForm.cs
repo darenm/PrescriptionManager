@@ -8,6 +8,8 @@ using System.Text;
 using System.Windows.Forms;
 
 using System.Data.Linq;
+using PrescriptionManagerServices.Models;
+using PrescriptionManagerServicesClient;
 
 namespace PrescriptionManager
 {
@@ -17,6 +19,8 @@ namespace PrescriptionManager
 
         // Typed DataContext object.
         private ContosoMedicalDataClassesDataContext _db = new ContosoMedicalDataClassesDataContext();
+
+        private ServiceHttpClient _client = new ServiceHttpClient("http://prescriptionmanagerservices20171201025306.azurewebsites.net");
 
         public MainForm()
         {
@@ -37,17 +41,25 @@ namespace PrescriptionManager
 
         #region View by Patient tab - display data
 
-        private void DisplayPatients()
+        private async void DisplayPatients()
         {
+            //var servicePatient = await _client.GetById<Patients>("api/Patients", 1);
+            var servicePatients = await _client.Get<List<Patients>>("api/Patients");
             // Get all patients from the database, and display them.
-            foreach (Patient p in _db.Patients)
+            //foreach (Patient p in _db.Patients)
+            //{
+            //    string patientName = p.FirstName + " " + p.LastName;
+            //    patientsGridView.Rows.Add(p.PatientID, patientName);
+            //}
+            foreach (var p in servicePatients)
             {
                 string patientName = p.FirstName + " " + p.LastName;
-                patientsGridView.Rows.Add(p.PatientID, patientName);
+                patientsGridView.Rows.Add(p.PatientId, patientName);
             }
+
         }
 
-        private void DisplayPrescriptions()
+        private async void DisplayPrescriptions()
         {
             // Clear the prescriptionsGridView.
             prescriptionsGridView.Rows.Clear();
@@ -56,18 +68,29 @@ namespace PrescriptionManager
             int patientID = (int)patientsGridView.CurrentRow.Cells["PatientID"].Value;
 
             // Define a LINQ query to get the prescriptions for the patient.
-            var query = from prescription in _db.Prescriptions
-                        where prescription.PatientID == patientID
-                        select prescription;
+            //var query = from prescription in _db.Prescriptions
+            //            where prescription.PatientID == patientID
+            //            select prescription;
 
             // Display the prescriptions.
-            foreach (Prescription p in query)
+            //foreach (Prescription p in query)
+            //{
+            //    prescriptionsGridView.Rows.Add(p.PrescriptionID, 
+            //                                   p.Description, 
+            //                                   p.IssueDate.ToShortDateString(), 
+            //                                   p.RepeatCount);
+            //}
+
+            var servicePrescriptions = await _client.Get<List<Prescriptions>>($"api/Patients/{patientID}/Prescriptions");
+            foreach (var p in servicePrescriptions)
             {
-                prescriptionsGridView.Rows.Add(p.PrescriptionID, 
-                                               p.Description, 
-                                               p.IssueDate.ToShortDateString(), 
+                prescriptionsGridView.Rows.Add(p.PrescriptionId,
+                                               p.Description,
+                                               p.IssueDate.ToShortDateString(),
                                                p.RepeatCount);
             }
+
+
 
             // Highlight the first row in the prescriptionsGridView.
             if (prescriptionsGridView.Rows.Count != 0)

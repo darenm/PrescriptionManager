@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -25,6 +26,13 @@ namespace PrescriptionManagerServices.Controllers
         public IEnumerable<Prescriptions> GetPrescriptions()
         {
             return _context.Prescriptions;
+        }
+
+        // GET: api/Prescriptions
+        [HttpGet("~/api/Patients/{patientId}/Prescriptions")]
+        public IEnumerable<Prescriptions> GetPatientPrescriptions(int patientId)
+        {
+            return _context.Prescriptions.Where(p => p.PatientId == patientId).ToList();
         }
 
         // GET: api/Prescriptions/5

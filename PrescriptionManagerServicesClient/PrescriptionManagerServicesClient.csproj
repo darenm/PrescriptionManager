@@ -4,4 +4,19 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Include="..\PrescriptionManagerServices\Models\Appointments.cs" Link="Models\Appointments.cs" />
+    <Compile Include="..\PrescriptionManagerServices\Models\Doctors.cs" Link="Models\Doctors.cs" />
+    <Compile Include="..\PrescriptionManagerServices\Models\Patients.cs" Link="Models\Patients.cs" />
+    <Compile Include="..\PrescriptionManagerServices\Models\Prescriptions.cs" Link="Models\Prescriptions.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Models\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+  </ItemGroup>
+
 </Project>
