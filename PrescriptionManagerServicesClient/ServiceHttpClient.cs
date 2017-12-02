@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
-using System.Web;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace PrescriptionManagerServicesClient
 {
@@ -34,11 +31,11 @@ namespace PrescriptionManagerServicesClient
             _baseUri = baseUri;
         }
 
-        public async Task<TModel> GetById<TModel>(string relativePath, int id) where TModel : class
+        public async Task<TModel> Delete<TModel>(string relativePath, int id) where TModel : class
         {
             try
             {
-                var request = BuildGetRequest($"{_baseUri}/{relativePath}/{id}");
+                var request = BuildDeleteRequest($"{_baseUri}/{relativePath}/{id}");
                 var result = await GetStringResult(request);
                 return JsonConvert.DeserializeObject<TModel>(result);
             }
@@ -54,7 +51,7 @@ namespace PrescriptionManagerServicesClient
             {
                 var request = BuildGetRequest($"{_baseUri}/{relativePath}");
                 var result = await GetStringResult(request);
-                var data = JsonConvert.DeserializeObject<TModel>(result, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+                var data = JsonConvert.DeserializeObject<TModel>(result);
                 return data;
             }
             catch
@@ -63,13 +60,57 @@ namespace PrescriptionManagerServicesClient
             }
         }
 
+        public async Task<TModel> GetById<TModel>(string relativePath, int id) where TModel : class
+        {
+            try
+            {
+                var request = BuildGetRequest($"{_baseUri}/{relativePath}/{id}");
+                var result = await GetStringResult(request);
+                return JsonConvert.DeserializeObject<TModel>(result);
+            }
+            catch
+            {
+                return null;
+            }
+        }
 
+        public async Task<TModel> Post<TModel>(string relativePath, TModel model) where TModel : class
+        {
+            var serializeObject = JsonConvert.SerializeObject(model);
+            var request = BuildPostRequest($"{_baseUri}/{relativePath}", serializeObject);
+            var result = await GetStringResult(request);
+            try
+            {
+                var response = JsonConvert.DeserializeObject<TModel>(result);
+                return response;
+            }
+            catch
+            {
+                return null;
+            }
+        }
 
-        /// <summary>
-        ///     Builds the get request.
-        /// </summary>
-        /// <param name="url">The URL.</param>
-        /// <returns>HttpRequestMessage.</returns>
+        public async Task Put<TModel>(string relativePath, TModel model, int id) where TModel : class
+        {
+            var serializeObject = JsonConvert.SerializeObject(model);
+            var request = BuildPutRequest($"{_baseUri}/{relativePath}/{id}", serializeObject);
+            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            var responseMessage = await Client.SendAsync(request);
+            responseMessage.EnsureSuccessStatusCode();
+        }
+
+        private HttpRequestMessage BuildDeleteRequest(string url)
+        {
+            var request = new HttpRequestMessage
+            {
+                RequestUri = new Uri(url),
+                Method = HttpMethod.Delete
+            };
+            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            return request;
+        }
+
         private HttpRequestMessage BuildGetRequest(string url)
         {
             var request = new HttpRequestMessage
@@ -77,36 +118,34 @@ namespace PrescriptionManagerServicesClient
                 RequestUri = new Uri(url),
                 Method = HttpMethod.Get
             };
-            //request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
             return request;
         }
 
-        /// <summary>
-        ///     Builds the post request.
-        /// </summary>
-        /// <param name="url">The URL.</param>
-        /// <param name="content">The content.</param>
-        /// <returns>HttpRequestMessage.</returns>
         private HttpRequestMessage BuildPostRequest(string url, string content)
         {
             var request = BuildGetRequest(url);
             request.Method = HttpMethod.Post;
             request.Content = new StringContent(content, Encoding.UTF8, "application/json");
+            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             return request;
         }
 
-        /// <summary>
-        /// Gets the string result.
-        /// </summary>
-        /// <param name="request">The request.</param>
-        /// <returns>Task&lt;System.String&gt;.</returns>
+        private HttpRequestMessage BuildPutRequest(string url, string content)
+        {
+            var request = BuildGetRequest(url);
+            request.Method = HttpMethod.Put;
+            request.Content = new StringContent(content, Encoding.UTF8, "application/json");
+            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            return request;
+        }
+
         private static async Task<string> GetStringResult(HttpRequestMessage request)
         {
             var responseMessage = await Client.SendAsync(request);
             responseMessage.EnsureSuccessStatusCode();
             return await responseMessage.Content.ReadAsStringAsync();
         }
-
     }
 }

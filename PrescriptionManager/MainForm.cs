@@ -67,6 +67,7 @@ namespace PrescriptionManager
             // Get the highlighted patient ID in the patientsGridView.
             int patientID = (int)patientsGridView.CurrentRow.Cells["PatientID"].Value;
 
+#region Old Linq to SQL code
             // Define a LINQ query to get the prescriptions for the patient.
             //var query = from prescription in _db.Prescriptions
             //            where prescription.PatientID == patientID
@@ -80,7 +81,8 @@ namespace PrescriptionManager
             //                                   p.IssueDate.ToShortDateString(), 
             //                                   p.RepeatCount);
             //}
-
+#endregion
+            
             var servicePrescriptions = await _client.Get<List<Prescriptions>>($"api/Patients/{patientID}/Prescriptions");
             foreach (var p in servicePrescriptions)
             {
@@ -114,7 +116,7 @@ namespace PrescriptionManager
             return query.First();
         }
 
-        private void repeatPrescriptions_Click(object sender, EventArgs e)
+        private async void repeatPrescriptions_Click(object sender, EventArgs e)
         {
             // Get the highlighted prescriptions in the prescriptionsGridView.
             DataGridViewSelectedRowCollection selectedRows = prescriptionsGridView.SelectedRows;
@@ -126,17 +128,21 @@ namespace PrescriptionManager
                 int prescriptionID = (int)selectedRows[i].Cells["PrescriptionID"].Value;
 
                 // Get the Prescription entity.
-                Prescription prescription = GetPrescriptionEntity(prescriptionID);
+                //Prescription prescription = GetPrescriptionEntity(prescriptionID);
+                var prescription = await _client.GetById<Prescriptions>("/api/Prescriptions", prescriptionID);
 
                 // Increment the RepeatCount.
                 prescription.RepeatCount++;
+
+                await _client.Put("/api/Prescriptions", prescription, prescriptionID);
             }
 
             // Save the changes to the database.
-            DoSave();
+            //DoSave();
+            DisplayPrescriptions();
         }
 
-        private void deletePrescriptions_Click(object sender, EventArgs e)
+        private async void deletePrescriptions_Click(object sender, EventArgs e)
         {
             // Get the highlighted prescriptions in the prescriptionsGridView.
             DataGridViewSelectedRowCollection selectedRows = prescriptionsGridView.SelectedRows;
@@ -148,14 +154,17 @@ namespace PrescriptionManager
                 int prescriptionID = (int)selectedRows[i].Cells["PrescriptionID"].Value;
 
                 // Get the Prescription entity.
-                Prescription prescription = GetPrescriptionEntity(prescriptionID);
+                //Prescription prescription = GetPrescriptionEntity(prescriptionID);
 
                 // Delete the Prescription entity.
-                _db.Prescriptions.DeleteOnSubmit(prescription);
+                //_db.Prescriptions.DeleteOnSubmit(prescription);
+                await _client.Delete<Prescriptions>("/api/Prescriptions", prescriptionID);
+
             }
 
             // Save the changes to the database.
-            DoSave();
+            //DoSave();
+            DisplayPrescriptions();
         }
 
         private void newPrescriptions_Click(object sender, EventArgs e)
@@ -168,48 +177,48 @@ namespace PrescriptionManager
             form.ShowDialog();
 
             // Save the changes to the database.
-            DoSave();
+            //DoSave();
         }
 
-        private void DoSave()
-        {
-            try
-            {
-                // Submit changes to the database.
-                _db.SubmitChanges(ConflictMode.ContinueOnConflict);
-            }
-            catch (ChangeConflictException)
-            {
-                // Iterate over concurrency conflicts.
-                foreach (ObjectChangeConflict occ in _db.ChangeConflicts)
-                {
-                    // Get the Prescription entity in conflict.
-                    Prescription entityInConflict = (Prescription)occ.Object;
-                    string caption = string.Format("Prescription ID {0} - Conflicting Updates Not Saved", entityInConflict.PrescriptionID);
+        //private void DoSave()
+        //{
+        //    try
+        //    {
+        //        // Submit changes to the database.
+        //        _db.SubmitChanges(ConflictMode.ContinueOnConflict);
+        //    }
+        //    catch (ChangeConflictException)
+        //    {
+        //        // Iterate over concurrency conflicts.
+        //        foreach (ObjectChangeConflict occ in _db.ChangeConflicts)
+        //        {
+        //            // Get the Prescription entity in conflict.
+        //            Prescription entityInConflict = (Prescription)occ.Object;
+        //            string caption = string.Format("Prescription ID {0} - Conflicting Updates Not Saved", entityInConflict.PrescriptionID);
 
-                    // For each member in conflict, get the current, original, and database values.
-                    string message = string.Empty;
-                    foreach (MemberChangeConflict mcc in occ.MemberConflicts)
-                    {
-                        message += string.Format("Member in conflict: {0}\n",   mcc.Member);
-                        message += string.Format("  - current value:  {0}\n",   mcc.CurrentValue);
-                        message += string.Format("  - original value: {0}\n",   mcc.OriginalValue);
-                        message += string.Format("  - database value: {0}\n\n", mcc.DatabaseValue);
-                    }
-                    MessageBox.Show(message, caption, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        //            // For each member in conflict, get the current, original, and database values.
+        //            string message = string.Empty;
+        //            foreach (MemberChangeConflict mcc in occ.MemberConflicts)
+        //            {
+        //                message += string.Format("Member in conflict: {0}\n",   mcc.Member);
+        //                message += string.Format("  - current value:  {0}\n",   mcc.CurrentValue);
+        //                message += string.Format("  - original value: {0}\n",   mcc.OriginalValue);
+        //                message += string.Format("  - database value: {0}\n\n", mcc.DatabaseValue);
+        //            }
+        //            MessageBox.Show(message, caption, MessageBoxButtons.OK, MessageBoxIcon.Warning);
 
-                    // Override all the current values with the values from the database.
-                    occ.Resolve(RefreshMode.OverwriteCurrentValues);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Exception Occurred", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            }
+        //            // Override all the current values with the values from the database.
+        //            occ.Resolve(RefreshMode.OverwriteCurrentValues);
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        MessageBox.Show(ex.Message, "Exception Occurred", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        //    }
 
-            // Redisplay the prescriptions.
-            DisplayPrescriptions();
-        }
+        //    // Redisplay the prescriptions.
+        //    DisplayPrescriptions();
+        //}
 
         #endregion
 
