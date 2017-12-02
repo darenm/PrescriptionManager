@@ -44,7 +44,7 @@ namespace PrescriptionManager
         private async void DisplayPatients()
         {
             //var servicePatient = await _client.GetById<Patients>("api/Patients", 1);
-            var servicePatients = await _client.Get<List<Patients>>("api/Patients");
+            var servicePatients = await _client.Get<List<Patients>>(ApiEndpoints.Patients);
             // Get all patients from the database, and display them.
             //foreach (Patient p in _db.Patients)
             //{
@@ -83,7 +83,7 @@ namespace PrescriptionManager
             //}
 #endregion
             
-            var servicePrescriptions = await _client.Get<List<Prescriptions>>($"api/Patients/{patientID}/Prescriptions");
+            var servicePrescriptions = await _client.Get<List<Prescriptions>>($"{ApiEndpoints.Patients}/{patientID}/Prescriptions");
             foreach (var p in servicePrescriptions)
             {
                 prescriptionsGridView.Rows.Add(p.PrescriptionId,
@@ -129,12 +129,12 @@ namespace PrescriptionManager
 
                 // Get the Prescription entity.
                 //Prescription prescription = GetPrescriptionEntity(prescriptionID);
-                var prescription = await _client.GetById<Prescriptions>("/api/Prescriptions", prescriptionID);
+                var prescription = await _client.GetById<Prescriptions>(ApiEndpoints.Prescriptions, prescriptionID);
 
                 // Increment the RepeatCount.
                 prescription.RepeatCount++;
 
-                await _client.Put("/api/Prescriptions", prescription, prescriptionID);
+                await _client.Put(ApiEndpoints.Prescriptions, prescription, prescriptionID);
             }
 
             // Save the changes to the database.
@@ -158,7 +158,7 @@ namespace PrescriptionManager
 
                 // Delete the Prescription entity.
                 //_db.Prescriptions.DeleteOnSubmit(prescription);
-                await _client.Delete<Prescriptions>("/api/Prescriptions", prescriptionID);
+                await _client.Delete<Prescriptions>(ApiEndpoints.Prescriptions, prescriptionID);
 
             }
 
@@ -252,7 +252,7 @@ namespace PrescriptionManager
             //                                           p.RepeatCount);
             //}
 
-            var results = await _client.Get<List<Prescriptions>>("/api/Prescriptions",
+            var results = await _client.Get<List<Prescriptions>>(ApiEndpoints.Prescriptions,
                 new[] {(key: "fromDate", value: fromDate.ToString()), (key: "toDate", value: toDate.ToString())});
             foreach (var p in results)
             {

@@ -57,7 +57,7 @@ namespace PrescriptionManager
 
             // Add the Prescription entity to the DataContext object.
             //_db.Prescriptions.InsertOnSubmit(prescription);
-            await _client.Post<Prescriptions>("/api/Prescriptions", prescription);
+            await _client.Post<Prescriptions>(ApiEndpoints.Prescriptions, prescription);
 
             // Add the prescription description to addedPrescriptionsListBox.
             addedPrescriptionsListBox.Items.Add(prescription.Description);

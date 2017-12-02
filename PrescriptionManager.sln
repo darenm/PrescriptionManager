@@ -11,6 +11,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PrescriptionManagerServices
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrescriptionManagerServicesClient", "PrescriptionManagerServicesClient\PrescriptionManagerServicesClient.csproj", "{3334E8E8-007E-4CD3-9C07-A4C508D63C7D}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Client", "Client", "{C685E7CC-FDA2-417A-99AF-31B443292993}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Server", "Server", "{804C2895-72B0-428D-8923-407D596CB67F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,6 +42,11 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C5B0FA23-6D83-4B39-8AFC-31C2B70F52EB} = {C685E7CC-FDA2-417A-99AF-31B443292993}
+		{E2B7DF6A-8688-4EB3-8D0C-14DF00690CE7} = {804C2895-72B0-428D-8923-407D596CB67F}
+		{3334E8E8-007E-4CD3-9C07-A4C508D63C7D} = {C685E7CC-FDA2-417A-99AF-31B443292993}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {606D0532-74E5-4CE7-8D20-9E1CD6310C2A}
